@@ -1,6 +1,11 @@
 # Nudge
 
-Nudge is a lightweight library for sending APNS messages.
+Nudge is a lightweight library for sending APNS messages, using the new HTTP/2
+protocol.
+
+## Status
+
+This is a very early version, and is still a bit rough around the edges!
 
 ## Quick start
 
@@ -30,5 +35,6 @@ there should also be something in `#message` to tell you what happened.
 
 Each `Nudge::Client` uses a single network connection, and sends one message at
 a time, synchronously.  It connects when you initialize the instance, and it
-keeps its connection open.
+keeps its connection open.  Currently if you want to send multiple messages at
+once, you should create multiple `Client` instances.
 
