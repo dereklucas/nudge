@@ -2,12 +2,12 @@ require 'http/2'
 require 'openssl'
 require 'socket'
 require 'json'
+require 'nudge/ssl_socket'
 
 module Nudge
   class Transport
-    def initialize(certificate, host, port)
-      @certificate = certificate
-      @host, @port = host, port
+    def initialize(socket)
+      @socket = socket
     end
 
     def connected?
@@ -16,25 +16,22 @@ module Nudge
 
     def connect
       unless connected?
-        @socket = TCPSocket.new(@host, @port)
-        @ssl = OpenSSL::SSL::SSLSocket.new(@socket, @certificate.context)
-        @ssl.hostname = @host
-        @ssl.connect
+        @socket.connect
 
         @http2 = HTTP2::Client.new
         @http2.on(:frame) do |frame|
-          @ssl << frame
-          @ssl.flush
+          @socket << frame
         end
       end
     end
 
     def disconnect
-      @ssl.try(:close);     @ssl = nil
-      @socket.try(:close);  @socket = nil
+      @socket.disconnect
     end
 
     def post(path, payload, headers)
+      connect
+
       response_headers = []
       response_body = nil
       stream = @http2.new_stream
@@ -60,8 +57,8 @@ module Nudge
       stream.headers(headers, end_stream: false)
       stream.data(payload)
 
-      while reading && connected? && !@ssl.eof?
-        data = @ssl.read_nonblock(1024)
+      while reading && connected?# && !@socket.eof?
+        data = @socket.read(1024)
         @http2 << data
       end
 

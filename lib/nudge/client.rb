@@ -10,8 +10,8 @@ module Nudge
     attr_reader :transport
 
     def initialize(certificate, production: true)
-      @transport = create_transport(certificate, production)
-      @transport.connect
+      @socket     = create_socket(certificate, production)
+      @transport  = create_transport(@socket)
     end
 
     def send(token, payload)
@@ -22,11 +22,14 @@ module Nudge
 
     private
 
-    def create_transport(certificate, production)
+    def create_socket(certificate, production)
       host = production ? PRODUCTION_ENDPOINT : DEVELOPMENT_ENDPOINT
       port = SERVICE_PORT
+      Nudge::SSLSocket.new(host, port, certificate)
+    end
 
-      Transport.new(certificate, host, port)
+    def create_transport(socket)
+      Transport.new(socket)
     end
   end
 end

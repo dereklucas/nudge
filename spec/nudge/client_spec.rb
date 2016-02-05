@@ -16,12 +16,10 @@ RSpec.describe Client do
       let!(:client) { Client.new(certificate) }
 
       it "creates a transport to the production endpoint" do
-        expect(Transport).to have_received(:new).
-          with(certificate, 'api.push.apple.com', 443)
-      end
-
-      it "connects the transport" do
-        expect(transport).to have_received(:connect)
+        expect(Transport).to have_received(:new) do |s|
+          expect(s.host).to eq('api.push.apple.com')
+          expect(s.port).to eq(443)
+        end
       end
     end
 
@@ -29,12 +27,10 @@ RSpec.describe Client do
       let!(:client) { Client.new(certificate, production: false) }
 
       it "creates a transport to the development endpoint" do
-        expect(Transport).to have_received(:new).
-          with(certificate, 'api.development.push.apple.com', 443)
-      end
-
-      it "connects the transport" do
-        expect(transport).to have_received(:connect)
+        expect(Transport).to have_received(:new) do |s|
+          expect(s.host).to eq('api.development.push.apple.com')
+          expect(s.port).to eq(443)
+        end
       end
     end
   end
