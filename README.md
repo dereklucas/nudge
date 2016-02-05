@@ -24,6 +24,11 @@ payload hash directly to `#send`:
 client.send(token, { aps: { alert: 'Hello' } })
 ```
 
+The `#send` method returns a `Nudge::Response`.  You can check the response's
+`#success` to see if your message sent correctly.  If `#success` is `false`,
+there should also be something in `#message` to tell you what happened.
+
 Each `Nudge::Client` uses a single network connection, and sends one message at
 a time, synchronously.  It connects when you initialize the instance, and it
 keeps its connection open.
+
