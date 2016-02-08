@@ -32,10 +32,15 @@ module Nudge
     private
 
     def self.build(aps_args, custom_args)
+      aps_args = underscore_to_dash(aps_args)
       payload = { aps: aps_args }.merge(custom_args || {})
       payload[:aps].delete_if { |k, v| v.nil? }
       payload.delete_if { |k, v| v.nil? }
       Notification.new(payload)
+    end
+
+    def self.underscore_to_dash(hash)
+      Hash[hash.map { |k, v| [k.to_s.gsub('_', '-').to_sym, v] }]
     end
   end
 end
