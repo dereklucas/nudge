@@ -20,8 +20,8 @@ module Nudge
     end
 
     def disconnect
-      @ssl.try(:close); @ssl = nil
-      @tcp.try(:close); @tcp = nil
+      @ssl && @ssl.close; @ssl = nil
+      @tcp && @tcp.close; @tcp = nil
     end
 
     def <<(data)

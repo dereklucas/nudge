@@ -15,7 +15,7 @@ class TestSocket
   end
 
   def disconnect
-    @tcp.try(:close); @tcp = nil
+    @tcp && @tcp.close; @tcp = nil
   end
 
   def <<(data)
