@@ -57,4 +57,41 @@ RSpec.describe Client do
       expect(r).to eq(response)
     end
   end
+
+  context "the topic argument" do
+    let(:message_payload) { { aps: { alert: 'Hello' } } }
+    let(:token)           { "abcdef" }
+
+    before do
+      allow(client.transport).to receive(:post)
+    end
+
+    context "when it is specified" do
+      let(:client) { Client.new(certificate, topic: 'com.example.Topic') }
+
+      before do
+        client.send(token, message_payload)
+      end
+
+      it "sends an `apns-topic` header to the transport" do
+        expect(client.transport).to have_received(:post) do |_, _, headers|
+          expect(headers['apns-topic']).to eq('com.example.Topic')
+        end
+      end
+    end
+
+    context "when it is not specified" do
+      let(:client) { Client.new(certificate) }
+
+      before do
+        client.send(token, message_payload)
+      end
+
+      it "does not specify an `apns-topic` header" do
+        expect(client.transport).to have_received(:post) do |_, _, headers|
+          expect(headers).to_not include('apns-topic')
+        end
+      end
+    end
+  end
 end

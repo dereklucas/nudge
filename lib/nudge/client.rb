@@ -9,14 +9,15 @@ module Nudge
 
     attr_reader :transport
 
-    def initialize(certificate, production: true)
+    def initialize(certificate, production: true, topic: nil)
       @socket     = create_socket(certificate, production)
       @transport  = create_transport(@socket)
+      @topic      = topic
     end
 
     def send(token, payload)
       payload = payload.to_json
-      headers = { }
+      headers = build_headers
       response = @transport.post('/3/device/' + token, payload, headers)
     end
 
@@ -30,6 +31,12 @@ module Nudge
 
     def create_transport(socket)
       Transport.new(socket)
+    end
+
+    def build_headers
+      headers = {}
+      headers['apns-topic'] = @topic if @topic
+      headers
     end
   end
 end
