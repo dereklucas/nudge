@@ -46,13 +46,12 @@ module Nudge
 
     def connect_socket
       while !connected?
-        result = @ssl.connect_nonblock(exception: false)
-        case result
-        when :wait_readable then wait_for_ready_or_timeout([@ssl], nil)
-        when :wait_writable then wait_for_ready_or_timeout(nil, [@ssl])
-        else
-          puts @ssl.methods
-          puts @ssl.closed?
+        begin
+          result = @ssl.connect_nonblock
+        rescue IO::WaitReadable
+          wait_for_ready_or_timeout([@ssl], nil)
+        rescue IO::WaitWritable
+          wait_for_ready_or_timeout(nil, [@ssl])
         end
       end
     end
