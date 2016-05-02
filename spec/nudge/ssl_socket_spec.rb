@@ -33,13 +33,32 @@ RSpec.describe SSLSocket do
     expect(socket).to be_connected
   end
 
-  it "raises an exception on timeout" do
-    server.connection_delay = 0.2
-    socket.timeout_seconds = 0.1
+  context "when the connection times out" do
+    before do
+      server.connection_delay = 0.2
+      socket.timeout_seconds = 0.1
+    end
 
-    expect {
-      socket.connect
-    }.to raise_error(Nudge::ConnectionTimeoutError)
+    it "raises an exception" do
+      expect { socket.connect }.to raise_error(Nudge::ConnectionTimeoutError)
+    end
+
+    context "after the timeout has occurred" do
+      before do
+        expect { socket.connect }.to raise_error(Nudge::ConnectionTimeoutError)
+      end
+
+      it "remains disconnected" do
+        expect(socket).to_not be_connected
+      end
+
+      it "can reconnect a subsequent time" do
+        server.connection_delay = 0
+        server.start(use_ssl: true)
+
+        expect { socket.connect }.to_not raise_error
+      end
+    end
   end
 
   def create_test_context

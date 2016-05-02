@@ -58,6 +58,7 @@ module Nudge
 
     def wait_for_ready_or_timeout(read, write)
       unless IO.select(read, write, nil, @timeout_seconds)
+        disconnect
         raise ConnectionTimeoutError.new
       end
     end
