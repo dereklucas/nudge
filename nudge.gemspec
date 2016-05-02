@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["kevin.mcconnell@gmail.com"]
 
   spec.summary       = "A lightweight APNS client"
-  spec.homepage      = "https://github.com/arcivr/nudge"
+  spec.homepage      = "https://github.com/kevinmcconnell/nudge"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
