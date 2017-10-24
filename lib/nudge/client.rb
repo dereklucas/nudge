@@ -16,8 +16,8 @@ module Nudge
     end
 
     def send(token, payload)
+      headers = build_headers payload.delete(:collapse_id)
       payload = payload.to_json
-      headers = build_headers
       response = @transport.post('/3/device/' + token, payload, headers)
     end
 
@@ -33,9 +33,10 @@ module Nudge
       Transport.new(socket)
     end
 
-    def build_headers
+    def build_headers(collapse = nil)
       headers = {}
       headers['apns-topic'] = @topic if @topic
+      headers['apns-collapse-id'] = collapse.byteslice(0, 64) if collapse
       headers
     end
   end

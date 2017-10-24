@@ -94,4 +94,47 @@ RSpec.describe Client do
       end
     end
   end
+
+  context "the collapse argument" do
+    let(:token)           { "abcdef" }
+    let(:client)          { Client.new(certificate) }
+
+    before do
+      allow(client.transport).to receive(:post)
+    end
+
+    context "when it is specified" do
+      it "sends an `apns-collapse-id` header to the transport" do
+        message_payload = { collapse_id: "collapse-id", aps: { alert: 'Hello' } }
+        client.send(token, message_payload)
+
+        expect(client.transport).to have_received(:post) do |_, _, headers|
+          expect(headers['apns-collapse-id']).to eq('collapse-id')
+        end
+      end
+
+      it "`apns-collapse-id` doesn't exceed 64 bytes" do
+        message_payload = { collapse_id: 50.times.map { '🚀' }.join, aps: { alert: 'Hello' } }
+        client.send(token, message_payload)
+
+        expect(client.transport).to have_received(:post) do |_, _, headers|
+          expect(headers['apns-collapse-id'].bytesize).to be <= 64
+        end
+      end
+    end
+
+    context "when it is not specified" do
+      let(:message_payload) { { aps: { alert: 'Hello' } } }
+
+      before do
+        client.send(token, message_payload)
+      end
+
+      it "does not specify an `apns-collapse-id` header" do
+        expect(client.transport).to have_received(:post) do |_, _, headers|
+          expect(headers).to_not include('apns-collapse-id')
+        end
+      end
+    end
+  end
 end
