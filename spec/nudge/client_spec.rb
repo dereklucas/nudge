@@ -37,7 +37,7 @@ RSpec.describe Client do
 
   context "sending messages" do
     let(:client)          { Client.new(certificate) }
-    let(:message_payload) { { aps: { alert: 'Hello' } } }
+    let(:message_payload) { Nudge::Notification.alert('Hello') }
     let(:token)           { "abcdef" }
 
     it "posts the payload to the transport" do
@@ -59,7 +59,7 @@ RSpec.describe Client do
   end
 
   context "the topic argument" do
-    let(:message_payload) { { aps: { alert: 'Hello' } } }
+    let(:message_payload) { Nudge::Notification.alert('Hello') }
     let(:token)           { "abcdef" }
 
     before do
@@ -105,7 +105,7 @@ RSpec.describe Client do
 
     context "when it is specified" do
       it "sends an `apns-collapse-id` header to the transport" do
-        message_payload = { collapse_id: "collapse-id", aps: { alert: 'Hello' } }
+        message_payload = Nudge::Notification.alert('Hello', custom: { collapse_id: "collapse-id" })
         client.send(token, message_payload)
 
         expect(client.transport).to have_received(:post) do |_, _, headers|
@@ -114,7 +114,7 @@ RSpec.describe Client do
       end
 
       it "`apns-collapse-id` doesn't exceed 64 bytes" do
-        message_payload = { collapse_id: 50.times.map { '🚀' }.join, aps: { alert: 'Hello' } }
+        message_payload = Nudge::Notification.alert('Hello', custom: { collapse_id: 50.times.map { '🚀' }.join })
         client.send(token, message_payload)
 
         expect(client.transport).to have_received(:post) do |_, _, headers|
@@ -124,7 +124,7 @@ RSpec.describe Client do
     end
 
     context "when it is not specified" do
-      let(:message_payload) { { aps: { alert: 'Hello' } } }
+      let(:message_payload) { Nudge::Notification.alert('Hello') }
 
       before do
         client.send(token, message_payload)
