@@ -15,9 +15,9 @@ module Nudge
       @topic      = topic
     end
 
-    def send(token, payload)
-      headers = build_headers payload.delete(:collapse_id)
-      payload = payload.to_json
+    def send(token, notification)
+      headers = build_headers(notification.payload.delete(:collapse_id))
+      payload = notification.to_json
       response = @transport.post('/3/device/' + token, payload, headers)
     end
 
